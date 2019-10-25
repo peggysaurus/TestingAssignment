@@ -355,6 +355,67 @@ public class DataBaseConnector {
         }
     }
 
+    public void searchPlayers(TableView tv, String search){
+        try {
+            String searchTerm = "%" + search + "%";
+            String club = "";
+
+
+            String clubsql = "SELECT id FROM clubs WHERE name LIKE ?";
+            PreparedStatement psClub = con.prepareStatement(clubsql);
+            psClub.setString(1,searchTerm);
+
+
+            ResultSet rsClub = psClub.executeQuery();
+            while(rsClub.next()){
+                club = "club = " + rsClub.getInt("id") + " OR " + club;
+            }
+
+//            System.out.println(club);
+            String sql = "SELECT * FROM players WHERE " +
+                    "name like ? OR " +
+                    club +
+                    "nationality like ? OR " +
+                    "position like ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, searchTerm);
+            ps.setString(2, searchTerm);
+            ps.setString(3, searchTerm);
+
+//            System.out.println(ps);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()){
+                Player p = new Player();
+                p.setName(rs.getString("name"));
+                p.setPlayer_id(rs.getInt("id"));
+                p.setNationality(rs.getString("nationality"));
+                p.setPosition(rs.getString("position"));
+                p.setMarket_value(rs.getDouble("market_value"));
+                p.setAge(rs.getInt("age"));
+
+                int clubID = rs.getInt("club");
+                String sql2 = "select * from clubs where id = ?";
+                PreparedStatement stmt2 = con.prepareStatement(sql2);
+                stmt2.setInt(1,clubID);
+                ResultSet rs2 = stmt2.executeQuery();
+
+                if(rs2.next()){
+                    Club c = new Club(rs2.getString("name"),clubID);
+                    p.setClub(c);
+                }
+                else{
+                    Club c = new Club("Unknown",clubID);
+                    p.setClub(c);
+                }
+                tv.getItems().add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void getAllPlayers(TableView tv){
 
         try{

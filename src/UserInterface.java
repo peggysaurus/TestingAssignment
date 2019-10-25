@@ -16,6 +16,7 @@ import javafx.util.Callback;
 
 import java.io.File;
 
+
 public class UserInterface extends Application {
     protected Scene scene;
     private Stage stage;
@@ -52,6 +53,7 @@ public class UserInterface extends Application {
         });
         primaryStage.show();
         autoSizeCols();
+        loadTable();
     }
 
     private void autoSizeCols() {
@@ -92,7 +94,16 @@ public class UserInterface extends Application {
         search.setOnAction(search());
         Text searchLabel = new Text("Search: ");
 //        Text txt = new Text("Put buttons here");
-        hbox.getChildren().addAll(loadBtn,addPBtn,addCBtn,searchLabel,search);
+        Button clearBtn = new Button();
+        clearBtn.setText("Clear Database");
+        clearBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                db.clearTables();
+                clearTable();
+            }
+        });
+        hbox.getChildren().addAll(loadBtn,addPBtn,addCBtn,searchLabel,search, clearBtn);
         return hbox;
     }
 
@@ -129,11 +140,13 @@ public class UserInterface extends Application {
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                playerView.setPlaceholder(new Text("loading..."));
                 FileChooser chooser = new FileChooser();
                 chooser.setTitle("File chooser");
                 chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
                 File file = chooser.showOpenDialog(stage);
                 dl.loadFile(file);
+                loadTable();
             }
         };
     }
@@ -150,15 +163,21 @@ public class UserInterface extends Application {
                         return new TableCell<Player, Double>();
                     }
                 };
-        TableColumn col1 = new TableColumn("Name");
-        TableColumn col2 = new TableColumn("Club");
-        TableColumn col3 = new TableColumn("Age");
-        TableColumn col4 = new TableColumn("Position");
-        TableColumn col5 = new TableColumn("Nationality");
-        TableColumn col6 = new TableColumn("Market Value");
+        TableColumn <String,Player> col1 = new TableColumn("Name");
+        col1.setCellValueFactory(new PropertyValueFactory<>("name"));
+        TableColumn <String,Player> col2 = new TableColumn("Club");
+        col2.setCellValueFactory(new PropertyValueFactory<>("clubName"));
+        TableColumn <Integer,Player> col3 = new TableColumn("Age");
+        col3.setCellValueFactory(new PropertyValueFactory<>("age"));
+        TableColumn <String,Player> col4 = new TableColumn("Position");
+        col4.setCellValueFactory(new PropertyValueFactory<>("position"));
+        TableColumn <String,Player> col5 = new TableColumn("Nationality");
+        col5.setCellValueFactory(new PropertyValueFactory<>("nationality"));
+        TableColumn <Double,Player> col6 = new TableColumn("Market Value");
+        col6.setCellValueFactory(new PropertyValueFactory<>("market_value"));
 
         tbView.getColumns().addAll(col1,col2,col3,col4,col5,col6);
-
+//tbView.getColumns().add(col1);
         for(int i = 0; i<tbView.getColumns().size(); i++){
             TableColumn tc = (TableColumn)tbView.getColumns().get(i);
 //            System.out.println();
@@ -168,5 +187,18 @@ public class UserInterface extends Application {
 
         tbView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         return tbView;
+    }
+
+    public void loadTable(){
+        db.getAllPlayers(playerView);
+//        System.out.println("Got player array of " + players.size());
+//        for (Player p : players){
+//            playerView.getItems().add(p);
+//        }
+        playerView.setPlaceholder(new Text("No content in table"));
+    }
+
+    public void clearTable(){
+        playerView.getItems().clear();
     }
 }

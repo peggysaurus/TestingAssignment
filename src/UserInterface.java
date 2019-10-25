@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Optional;
 
 
@@ -153,37 +154,32 @@ public class UserInterface extends Application {
         ButtonType okbtn = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okbtn, ButtonType.CANCEL);
 
-        //add vbox with fields
+
         GridPane grid = new GridPane();
-        VBox vBox = new VBox();
+
         Text header = new Text("Add new player");
         TextField name = new TextField();
         Text nameLabel = new Text("Name: ");
-        HBox nameBox = new HBox();
-        nameBox.getChildren().addAll(nameLabel,name);
+//TODO requires test when connected to db
+//        ArrayList <Club> clubs = db.getClubsArray();
+
+
         TextField club = new TextField();
         Text clubLabel = new Text("Club: ");//TODO make drop down instead
-        HBox clubBox = new HBox();
-        clubBox.getChildren().addAll(clubLabel,club);
+
         TextField age = new TextField();
         Text ageLabel = new Text("Age: ");
-        HBox ageBox = new HBox();
-        ageBox.getChildren().addAll(ageLabel,age);
+
         TextField position = new TextField();
         Text posLabel = new Text("Position: ");
 
-        HBox posBox = new HBox();
-        posBox.getChildren().addAll(posLabel,position);
         TextField nationality = new TextField();
         Text natLabel = new Text("Nationality: ");
-        HBox natBox = new HBox();
-        natBox.getChildren().addAll(natLabel,nationality);
+
         TextField mv = new TextField();
         Text mvLabel = new Text("Market Value: ");
-        HBox mvBox = new HBox();
-        mvBox.getChildren().addAll(mvLabel,mv);
 
-        vBox.getChildren().addAll(header,nameBox,clubBox,ageBox,posBox,natBox,mvBox);
+
         grid.setAlignment(Pos.CENTER);
         grid.add(header,1,0);
         grid.setColumnSpan(header,2);
@@ -200,7 +196,6 @@ public class UserInterface extends Application {
         grid.add(mvLabel,0,6);
         grid.add(mv,2,6);
 
-//        dialog.getDialogPane().setContent(vBox);
         dialog.getDialogPane().setContent(grid);
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okbtn) {

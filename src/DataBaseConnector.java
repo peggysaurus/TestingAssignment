@@ -1,6 +1,7 @@
 import javafx.scene.control.TableView;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class DataBaseConnector {
 
@@ -369,5 +370,27 @@ public class DataBaseConnector {
             System.out.println("error in getAllPlayers");
         }
 
+    }
+
+    public ArrayList<Club> getClubsArray(){
+        ArrayList<Club> clubs = new ArrayList<>();
+        try {
+            Statement stmt = con.createStatement();
+
+            String sql = "select * from clubs";
+
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                Club c = new Club(rs.getString("name"),rs.getInt("id"));
+                clubs.add(c);
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error in getClubsArray");
+        }
+
+        return clubs;
     }
 }

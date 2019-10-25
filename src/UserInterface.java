@@ -7,6 +7,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -15,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.io.File;
+import java.util.Optional;
 
 
 public class UserInterface extends Application {
@@ -23,7 +25,7 @@ public class UserInterface extends Application {
     private TableView playerView;
     private ScrollPane sp;
     private DataLoader dl;
-    private DataBaseConnector db;
+//    private DataBaseConnector db;
 
     public static void main(String[] args) {
         launch(args);}
@@ -31,7 +33,8 @@ public class UserInterface extends Application {
     @Override
     public void start(Stage primaryStage) {
         dl = new DataLoader();
-        db = new DataBaseConnector();
+        //TODO Commented out to run on computer w/o database
+//        db = new DataBaseConnector();
         this.stage = primaryStage;
         primaryStage.setTitle("Database Viewer");
 //        System.out.println("before set root");
@@ -99,7 +102,8 @@ public class UserInterface extends Application {
         clearBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                db.clearTables();
+                //TODO Commented out to run on computer w/o database
+//                db.clearTables();
                 clearTable();
             }
         });
@@ -131,9 +135,99 @@ public class UserInterface extends Application {
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-
+                Player p = null;
+                Dialog <Player>dialog = getPlayerDialog();
+//                dialog.show();
+                Optional<Player> result = dialog.showAndWait();
+                if (result.isPresent()) {
+                    p=result.get();
+                }
+                if(p!=null)//TODO send player to database
+                System.out.println(p.toString());
             }
         };
+    }
+
+    private Dialog<Player> getPlayerDialog(){
+        Dialog <Player> dialog = new Dialog <>();
+        ButtonType okbtn = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okbtn, ButtonType.CANCEL);
+
+        //add vbox with fields
+        GridPane grid = new GridPane();
+        VBox vBox = new VBox();
+        Text header = new Text("Add new player");
+        TextField name = new TextField();
+        Text nameLabel = new Text("Name: ");
+        HBox nameBox = new HBox();
+        nameBox.getChildren().addAll(nameLabel,name);
+        TextField club = new TextField();
+        Text clubLabel = new Text("Club: ");//TODO make drop down instead
+        HBox clubBox = new HBox();
+        clubBox.getChildren().addAll(clubLabel,club);
+        TextField age = new TextField();
+        Text ageLabel = new Text("Age: ");
+        HBox ageBox = new HBox();
+        ageBox.getChildren().addAll(ageLabel,age);
+        TextField position = new TextField();
+        Text posLabel = new Text("Position: ");
+
+        HBox posBox = new HBox();
+        posBox.getChildren().addAll(posLabel,position);
+        TextField nationality = new TextField();
+        Text natLabel = new Text("Nationality: ");
+        HBox natBox = new HBox();
+        natBox.getChildren().addAll(natLabel,nationality);
+        TextField mv = new TextField();
+        Text mvLabel = new Text("Market Value: ");
+        HBox mvBox = new HBox();
+        mvBox.getChildren().addAll(mvLabel,mv);
+
+        vBox.getChildren().addAll(header,nameBox,clubBox,ageBox,posBox,natBox,mvBox);
+        grid.setAlignment(Pos.CENTER);
+        grid.add(header,1,0);
+        grid.setColumnSpan(header,2);
+        grid.add(nameLabel,0,1);
+        grid.add(name,2,1);
+        grid.add(clubLabel,0,2);
+        grid.add(club,2,2);
+        grid.add(ageLabel,0,3);
+        grid.add(age,2,3);
+        grid.add(posLabel,0,4);
+        grid.add(position,2,4);
+        grid.add(natLabel,0,5);
+        grid.add(nationality,2,5);
+        grid.add(mvLabel,0,6);
+        grid.add(mv,2,6);
+
+//        dialog.getDialogPane().setContent(vBox);
+        dialog.getDialogPane().setContent(grid);
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okbtn) {
+                Player p = new Player();
+                p.setName(name.getText());
+
+                try {
+                p.setAge(Integer.parseInt(age.getText()));
+                } catch (NumberFormatException e) {
+                    p.setAge(0);
+                }
+                p.setPosition(position.getText());
+                p.setNationality(nationality.getText());
+                try{
+                p.setMarket_value(Double.parseDouble(mv.getText()));} catch (NumberFormatException e){
+                    p.setMarket_value(0.0);
+                }
+                //TODO get correct club id
+                Club c = new Club(club.getText(),1);
+
+                p.setClub(c);
+                return p;
+            }
+            return null;
+        });
+
+        return dialog;
     }
 
     private EventHandler<ActionEvent> loadFile() {
@@ -190,7 +284,8 @@ public class UserInterface extends Application {
     }
 
     public void loadTable(){
-        db.getAllPlayers(playerView);
+        //TODO Commented out to run on computer w/o database
+//        db.getAllPlayers(playerView);
 //        System.out.println("Got player array of " + players.size());
 //        for (Player p : players){
 //            playerView.getItems().add(p);

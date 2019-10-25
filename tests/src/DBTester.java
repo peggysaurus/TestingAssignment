@@ -26,6 +26,7 @@ public class DBTester {
         db.savePlayer(test);
         int acutalResult = db.countPlayers();
         db.removePlayer(db.getPlayer("test"));
+        db.removeClub(db.findClub("test"));
         assertEquals(expectedResult,acutalResult);
 
     }
@@ -42,6 +43,7 @@ public class DBTester {
         db.savePlayer(test);
         boolean result = db.savePlayer(test);
         db.removePlayer(db.getPlayer("test1"));
+        db.removeClub(db.findClub("test1"));
         assertEquals(false,result);
     }
 
@@ -63,6 +65,7 @@ public class DBTester {
                     + ", market value: 6.5";
             String actualResult = db.printPlayerByName("test6");
             db.removePlayer(test);
+        db.removeClub(db.findClub("test6"));
             assertEquals(expectedResult, actualResult);
     }
 
@@ -79,6 +82,7 @@ public class DBTester {
         int expectedResult = test.getPlayer_id();
         int actualResult = db.getPlayer("test2").getPlayer_id();
         db.removePlayer(db.getPlayer("test2"));
+        db.removeClub(db.findClub("test2"));
         assertEquals(expectedResult,actualResult);
     }
     //test remove player by count
@@ -95,6 +99,7 @@ public class DBTester {
         int expectedResult = db.countPlayers()-1;
         Player p = db.getPlayer("test5");
         db.removePlayer(p);
+        db.removeClub(db.findClub("test5"));
         assertEquals(expectedResult,db.countPlayers());
     }
 
@@ -109,6 +114,7 @@ public class DBTester {
         test.setMarket_value(103.5);
         test.setNationality("test3");
         db.savePlayer(test);
+        db.removeClub(db.findClub("test3"));
         String expectedResult = "Player: " + test.getName() + " removed";
         assertEquals(expectedResult,db.removePlayer(test));
     }
@@ -123,6 +129,23 @@ public class DBTester {
         assertEquals(expectedResult,db.removePlayer(test));
     }
 
+    @Test
+    void addClub(){
+        Club test = new Club ("TestClub", 1111);
+        int expectedResult = db.countClubs()+1;
+        db.saveClub(test);
+        int actualResult = db.countClubs();
+        db.removeClub(test);
+        assertEquals(expectedResult,actualResult);
+    }
+
+    @Test
+    void removeClub(){
+        Club test = new Club ("TestClub1", 1111);
+        String expectedResult = "Club: TestClub1 removed";
+        db.saveClub(test);
+        assertEquals(expectedResult,db.removeClub(test));
+    }
     //test UI trying to load correct file
 
     //test UI trying to load other files

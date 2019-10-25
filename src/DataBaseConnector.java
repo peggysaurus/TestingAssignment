@@ -247,6 +247,26 @@ public class DataBaseConnector {
         }
     }
 
+    public int countClubs(){
+        try{
+            int count = 0;
+            Statement stmt = con.createStatement();
+
+            String sql = "select name from clubs";
+
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()){
+                count++;
+            }
+            return count;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error in countClubs");
+            return -1;
+        }
+    }
+
     public void clearTables(){
         try {
             Statement playerStmt = con.createStatement();
@@ -258,6 +278,54 @@ public class DataBaseConnector {
         } catch (SQLException e) {
             System.out.println("error in clear tables");
             e.printStackTrace();
+        }
+    }
+
+    public Club findClub(String name){
+        try {
+            String prep = "Select * FROM clubs WHERE name = ?";
+
+            PreparedStatement ps = null;
+            ps = con.prepareStatement(prep);
+
+            ps.setString(1, name);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Club c = new Club(name, rs.getInt("id"));
+                return c;
+            }
+            else{
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String removeClub(Club c){
+        try{
+            String sql = "DELETE FROM clubs WHERE id = ?";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setInt(1, c.getId());
+            int result = ps.executeUpdate();
+            if(result==1){
+                return("Club: " + c.getName() + " removed");
+            }
+            else if(result>1){
+                return("Somehow multiple lines were changed");
+            }
+            else{
+                return("seems nothing was removed");
+            }
+
+        } catch (SQLException | NullPointerException e) {
+            e.printStackTrace();
+            return "Unable to locate club";
         }
     }
 }

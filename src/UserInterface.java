@@ -98,7 +98,16 @@ public class UserInterface extends Application {
         addCBtn.setText("Add Club");
         addCBtn.setOnAction(addClub());
         TextField search = new TextField();
-        search.setOnAction(search());
+        search.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                playerView.setPlaceholder(new Text("loading..."));
+                playerView.getItems().clear();
+                String term = search.getText();
+                db.searchPlayers(playerView,term);
+                playerView.setPlaceholder(new Text("No content in table"));
+            }
+        });
         Text searchLabel = new Text("Search: ");
 //        Text txt = new Text("Put buttons here");
         //TODO make a delete selected button
@@ -113,15 +122,6 @@ public class UserInterface extends Application {
         });
         hbox.getChildren().addAll(loadBtn,addPBtn,addCBtn,searchLabel,search, clearBtn);
         return hbox;
-    }
-
-    private EventHandler<ActionEvent> search() {
-        return new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                //TODO method to search by text
-            }
-        };
     }
 
     private EventHandler<ActionEvent> addClub() {

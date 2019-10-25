@@ -1,4 +1,6 @@
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -17,6 +19,7 @@ import javafx.util.Callback;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Observable;
 import java.util.Optional;
 
 
@@ -24,9 +27,9 @@ public class UserInterface extends Application {
     protected Scene scene;
     private Stage stage;
     private TableView playerView;
-    private ScrollPane sp;
+//    private ScrollPane sp;
     private DataLoader dl;
-//    private DataBaseConnector db;
+    private DataBaseConnector db;
 
     public static void main(String[] args) {
         launch(args);}
@@ -34,17 +37,17 @@ public class UserInterface extends Application {
     @Override
     public void start(Stage primaryStage) {
         dl = new DataLoader();
-        //TODO Commented out to run on computer w/o database
-//        db = new DataBaseConnector();
+
+        db = new DataBaseConnector();
         this.stage = primaryStage;
         primaryStage.setTitle("Database Viewer");
 //        System.out.println("before set root");
         Group root = new Group();
-        sp = new ScrollPane(getVBox());
-        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        sp.setFitToWidth(true);
-        root.getChildren().add(sp);
+//        sp = new ScrollPane(getVBox());
+//        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+//        sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+//        sp.setFitToWidth(true);
+        root.getChildren().add(getVBox());
 //        System.out.println("before set scene");
 
         scene = new Scene(root, 800, 350);
@@ -61,11 +64,11 @@ public class UserInterface extends Application {
     }
 
     private void autoSizeCols() {
-        sp.setPrefViewportHeight(stage.getHeight()-55);
-        playerView.setPrefWidth(stage.getWidth()-30);
+        playerView.setPrefHeight(stage.getHeight()-70);
+        playerView.setPrefWidth(stage.getWidth()-15);
         for(int i = 0; i < playerView.getColumns().size(); i++){
             TableColumn tc = (TableColumn)playerView.getColumns().get(i);
-            tc.setPrefWidth((stage.getWidth()-30)/playerView.getColumns().size());
+            tc.setPrefWidth((stage.getWidth()-15)/playerView.getColumns().size());
         }
     }
 
@@ -98,13 +101,13 @@ public class UserInterface extends Application {
         search.setOnAction(search());
         Text searchLabel = new Text("Search: ");
 //        Text txt = new Text("Put buttons here");
+        //TODO make a delete selected button
         Button clearBtn = new Button();
         clearBtn.setText("Clear Database");
         clearBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                //TODO Commented out to run on computer w/o database
-//                db.clearTables();
+                db.clearTables();
                 clearTable();
             }
         });
@@ -122,17 +125,22 @@ public class UserInterface extends Application {
     }
 
     private EventHandler<ActionEvent> addClub() {
-        //TODO method to add club from UI
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-
+                Club c = null;
+                Dialog <Club>dialog = getClubDialog();
+                Optional<Club> result = dialog.showAndWait();
+                if (result.isPresent()) {
+                    c=result.get();
+                }
+                if(c!=null)
+                    db.saveClub(c);
             }
         };
     }
 
     private EventHandler<ActionEvent> addPlayer() {
-        //TODO method to add player from UI
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -143,10 +151,45 @@ public class UserInterface extends Application {
                 if (result.isPresent()) {
                     p=result.get();
                 }
-                if(p!=null)//TODO send player to database
-                System.out.println(p.toString());
+                if(p!=null)
+//                System.out.println(p.toString());
+                db.savePlayer(p);
+                playerView.getItems().add(p);
             }
         };
+    }
+
+    private Dialog<Club> getClubDialog(){
+        Dialog <Club> dialog = new Dialog <>();
+        ButtonType okbtn = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okbtn, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+
+        Text header = new Text("Add new club");
+        TextField name = new TextField();
+        Text nameLabel = new Text("Name: ");
+
+        grid.setAlignment(Pos.CENTER);
+        grid.add(header,1,0);
+        grid.setColumnSpan(header,2);
+        grid.add(nameLabel,0,1);
+        grid.add(name,2,1);
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okbtn) {
+                String clubName = name.getText();
+                int clubID = db.countClubs();
+                while(db.findClub(clubID)!=null){
+                    clubID++;
+                }
+                return new Club(clubName,clubID);
+            }
+            return null;
+        });
+
+        return dialog;
     }
 
     private Dialog<Player> getPlayerDialog(){
@@ -160,12 +203,14 @@ public class UserInterface extends Application {
         Text header = new Text("Add new player");
         TextField name = new TextField();
         Text nameLabel = new Text("Name: ");
-//TODO requires test when connected to db
-//        ArrayList <Club> clubs = db.getClubsArray();
 
-
-        TextField club = new TextField();
-        Text clubLabel = new Text("Club: ");//TODO make drop down instead
+        ArrayList <Club> clubs = db.getClubsArray();
+        ObservableList<String> options = FXCollections.observableArrayList();
+        for (Club c : clubs) {
+            options.add(c.getName());
+        }
+        ComboBox comboBox = new ComboBox(options);
+        Text clubLabel = new Text("Club: ");
 
         TextField age = new TextField();
         Text ageLabel = new Text("Age: ");
@@ -186,7 +231,7 @@ public class UserInterface extends Application {
         grid.add(nameLabel,0,1);
         grid.add(name,2,1);
         grid.add(clubLabel,0,2);
-        grid.add(club,2,2);
+        grid.add(comboBox,2,2);
         grid.add(ageLabel,0,3);
         grid.add(age,2,3);
         grid.add(posLabel,0,4);
@@ -213,8 +258,17 @@ public class UserInterface extends Application {
                 p.setMarket_value(Double.parseDouble(mv.getText()));} catch (NumberFormatException e){
                     p.setMarket_value(0.0);
                 }
-                //TODO get correct club id
-                Club c = new Club(club.getText(),1);
+
+                String clubName = comboBox.getValue().toString();
+                Club c = null;
+                for (Club i : clubs){
+                    if(i.getName().equals(clubName)){
+                        c = i;
+                    }
+                }
+                if(c == null){
+                    c = new Club("Unknown",clubs.size());
+                }
 
                 p.setClub(c);
                 return p;
@@ -279,8 +333,8 @@ public class UserInterface extends Application {
     }
 
     public void loadTable(){
-        //TODO Commented out to run on computer w/o database
-//        db.getAllPlayers(playerView);
+
+        db.getAllPlayers(playerView);
 //        System.out.println("Got player array of " + players.size());
 //        for (Player p : players){
 //            playerView.getItems().add(p);

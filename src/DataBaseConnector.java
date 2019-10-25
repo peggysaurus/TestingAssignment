@@ -307,6 +307,30 @@ public class DataBaseConnector {
         }
     }
 
+    public Club findClub(int id){
+        try {
+            String prep = "Select * FROM clubs WHERE id = ?";
+
+            PreparedStatement ps = null;
+            ps = con.prepareStatement(prep);
+
+            ps.setInt(1, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Club c = new Club(rs.getString("name"), id);
+                return c;
+            }
+            else{
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public String removeClub(Club c){
         try{
             String sql = "DELETE FROM clubs WHERE id = ?";

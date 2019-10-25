@@ -1,4 +1,7 @@
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -7,20 +10,27 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+
+import java.io.File;
 
 public class UserInterface extends Application {
     protected Scene scene;
     private Stage stage;
     private TableView playerView;
     private ScrollPane sp;
+    private DataLoader dl;
+    private DataBaseConnector db;
 
     public static void main(String[] args) {
         launch(args);}
 
     @Override
     public void start(Stage primaryStage) {
+        dl = new DataLoader();
+        db = new DataBaseConnector();
         this.stage = primaryStage;
         primaryStage.setTitle("Database Viewer");
 //        System.out.println("before set root");
@@ -66,9 +76,66 @@ public class UserInterface extends Application {
 
     private HBox getHBox() {
         HBox hbox = new HBox();
-        Text txt = new Text("Put buttons here");
-        hbox.getChildren().add(txt);
+        hbox.setAlignment(Pos.CENTER_LEFT);
+        hbox.setPadding(new Insets(10,10,0,0));
+        hbox.setSpacing(10);
+        Button loadBtn = new Button();
+        loadBtn.setText("Load XML file");
+        loadBtn.setOnAction(loadFile());
+        Button addPBtn = new Button();
+        addPBtn.setText("Add Player");
+        addPBtn.setOnAction(addPlayer());
+        Button addCBtn = new Button();
+        addCBtn.setText("Add Club");
+        addCBtn.setOnAction(addClub());
+        TextField search = new TextField();
+        search.setOnAction(search());
+        Text searchLabel = new Text("Search: ");
+//        Text txt = new Text("Put buttons here");
+        hbox.getChildren().addAll(loadBtn,addPBtn,addCBtn,searchLabel,search);
         return hbox;
+    }
+
+    private EventHandler<ActionEvent> search() {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //TODO method to search by text
+            }
+        };
+    }
+
+    private EventHandler<ActionEvent> addClub() {
+        //TODO method to add club from UI
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+            }
+        };
+    }
+
+    private EventHandler<ActionEvent> addPlayer() {
+        //TODO method to add player from UI
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+            }
+        };
+    }
+
+    private EventHandler<ActionEvent> loadFile() {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FileChooser chooser = new FileChooser();
+                chooser.setTitle("File chooser");
+                chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
+                File file = chooser.showOpenDialog(stage);
+                dl.loadFile(file);
+            }
+        };
     }
 
     private TableView BuildPlayerTable(){

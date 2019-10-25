@@ -1,9 +1,8 @@
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -12,27 +11,56 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 public class UserInterface extends Application {
+    protected Scene scene;
+    private Stage stage;
+    private TableView playerView;
+    private ScrollPane sp;
 
     public static void main(String[] args) {
         launch(args);}
 
     @Override
     public void start(Stage primaryStage) {
+        this.stage = primaryStage;
         primaryStage.setTitle("Database Viewer");
-
+//        System.out.println("before set root");
         Group root = new Group();
-        root.getChildren().add(getVBox());
+        sp = new ScrollPane(getVBox());
+        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        sp.setFitToWidth(true);
+        root.getChildren().add(sp);
+//        System.out.println("before set scene");
 
-        primaryStage.setScene(new Scene(root, 300, 350));
+        scene = new Scene(root, 800, 350);
+        primaryStage.setScene(scene);
+        stage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            autoSizeCols();
+        });
+        stage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            autoSizeCols();
+        });
         primaryStage.show();
+        autoSizeCols();
+    }
+
+    private void autoSizeCols() {
+        sp.setPrefViewportHeight(stage.getHeight()-55);
+        playerView.setPrefWidth(stage.getWidth()-30);
+        for(int i = 0; i < playerView.getColumns().size(); i++){
+            TableColumn tc = (TableColumn)playerView.getColumns().get(i);
+            tc.setPrefWidth((stage.getWidth()-30)/playerView.getColumns().size());
+        }
     }
 
     private VBox getVBox() {
         VBox vbox = new VBox();
         vbox.setSpacing(10);
-
+        vbox.setAlignment(Pos.BOTTOM_CENTER);
         vbox.getChildren().add(getHBox());
-        vbox.getChildren().add(BuildPlayerTable());
+        playerView = BuildPlayerTable();
+
+        vbox.getChildren().add(playerView);
         return vbox;
     }
 
@@ -46,6 +74,8 @@ public class UserInterface extends Application {
     private TableView BuildPlayerTable(){
         TableView tbView = new TableView ();
         tbView.setEditable(true);
+//        System.out.println(scene.);
+//        tbView.prefWidthProperty().bind(stage.widthProperty());
         Callback<TableColumn, TableCell> cellFactory =
                 new Callback<TableColumn, TableCell>() {
                     @Override
@@ -53,20 +83,23 @@ public class UserInterface extends Application {
                         return new TableCell<Player, Double>();
                     }
                 };
-        TableColumn columnName = new TableColumn("Name");
-        columnName.setCellValueFactory(
-                new PropertyValueFactory<Player,String>("name"));
-        columnName.setMinWidth(60);
+        TableColumn col1 = new TableColumn("Name");
+        TableColumn col2 = new TableColumn("Club");
+        TableColumn col3 = new TableColumn("Age");
+        TableColumn col4 = new TableColumn("Position");
+        TableColumn col5 = new TableColumn("Nationality");
+        TableColumn col6 = new TableColumn("Market Value");
 
-        TableColumn columnValue1 = new TableColumn("Club");
-        columnValue1.setCellValueFactory(
-                new PropertyValueFactory<Player,Double>("club"));
-        columnValue1.setMinWidth(60);
+        tbView.getColumns().addAll(col1,col2,col3,col4,col5,col6);
 
-        TableColumn columnValue2 = new TableColumn("Age");
-        columnValue2.setCellValueFactory(
-                new PropertyValueFactory<Player,Double>("age"));
-        columnValue2.setMinWidth(60);
+        for(int i = 0; i<tbView.getColumns().size(); i++){
+            TableColumn tc = (TableColumn)tbView.getColumns().get(i);
+//            System.out.println();
+            Double wd = 60.0;
+            tc.setMinWidth(wd);
+        }
+
+        tbView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         return tbView;
     }
 }

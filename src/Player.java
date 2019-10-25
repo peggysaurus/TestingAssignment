@@ -57,6 +57,10 @@ public class Player {
         return club;
     }
 
+    public String getClubName(){
+        return club.getName();
+    }
+
     public void setClub(Club club) {
         this.club = club;
     }

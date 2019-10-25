@@ -1,19 +1,15 @@
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DLTester {
+class DLTester {
         private DataLoader dl;
 
 
-    public DLTester() {
+    DLTester() {
         dl = new DataLoader();
     }
 
@@ -28,9 +24,8 @@ public class DLTester {
 
     @Test
     void testLoadAll(){
-        boolean expectedResult = true;
         boolean actualResult = dl.loadFile(new File("C:\\Users\\nobesmarg\\Documents\\SWEN502\\Testing\\premierLeaguePlayerNames.xml"));
-        assertEquals(expectedResult, actualResult);
+        assertTrue(actualResult);
     }
 
 //    @ParameterizedTest (name ="{index}: String Field {0} with value {1}")

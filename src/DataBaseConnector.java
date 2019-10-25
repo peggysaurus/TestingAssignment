@@ -1,4 +1,5 @@
-import java.io.IOException;
+import javafx.scene.control.TableView;
+
 import java.sql.*;
 
 public class DataBaseConnector {
@@ -327,5 +328,46 @@ public class DataBaseConnector {
             e.printStackTrace();
             return "Unable to locate club";
         }
+    }
+
+    public void getAllPlayers(TableView tv){
+
+        try{
+            Statement stmt = con.createStatement();
+
+            String sql = "select * from players";
+
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()){
+                Player p = new Player();
+                p.setName(rs.getString("name"));
+                p.setPlayer_id(rs.getInt("id"));
+                p.setNationality(rs.getString("nationality"));
+                p.setPosition(rs.getString("position"));
+                p.setMarket_value(rs.getDouble("market_value"));
+                p.setAge(rs.getInt("age"));
+
+                int clubID = rs.getInt("club");
+                String sql2 = "select * from clubs where id = ?";
+                PreparedStatement stmt2 = con.prepareStatement(sql2);
+                stmt2.setInt(1,clubID);
+                ResultSet rs2 = stmt2.executeQuery();
+
+                if(rs2.next()){
+                    Club c = new Club(rs2.getString("name"),clubID);
+                    p.setClub(c);
+                }
+                else{
+                    Club c = new Club("Unknown",clubID);
+                    p.setClub(c);
+                }
+                tv.getItems().add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error in getAllPlayers");
+        }
+
     }
 }

@@ -5,6 +5,7 @@ import java.io.File;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+//NOTE: This will not work on someone else's machine as it won't know where to find your xml file.
 class DLTester {
         private DataLoader dl;
 

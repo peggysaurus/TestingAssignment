@@ -241,19 +241,36 @@ public class UserInterface extends Application {
                     dialog.getDialogPane().setContent(grid);
                     dialog.setResultConverter(dialogButton -> {
                         if (dialogButton == okbtn) {
-                            p.setName(name.getText());
-                            p.setPosition(position.getText());
-                            p.setNationality(nationality.getText());
+//                            System.out.println("Confirmed issue beyond here");
+                            String pName = name.getText();
+                            if(pName.length()>30){
+                                pName = pName.substring(0,29);
+                            }
+                            p.setName(pName);
+                            String pPos = position.getText();
+                            if(pPos.length()>10){
+                                pPos = pPos.substring(0,9);
+                            }
+                            p.setPosition(pPos);
+                            String pNat = nationality.getText();
+                            if(pNat.length()>30){
+                                pNat = pNat.substring(0,29);
+                            }
+                            p.setNationality(pNat);
                             for (Club c : clubs){
                                 if(comboBox.getValue().equals(c.getName())){
                                     p.setClub(c);
                                 }
                             }
                             try{
-                                p.setAge(Integer.parseInt(age.getText()));
+                                String pAge = age.getText();
+                                if(pAge.length()>11){
+                                    pAge = pAge.substring(0,10);
+                                }
+                                p.setAge(Integer.parseInt(pAge));
                                 p.setMarket_value(Double.parseDouble(mv.getText()));
                             } catch (NumberFormatException e){
-                                System.out.println("invalid entry in age of market value");
+                                System.out.println("invalid entry in age or market value");
                             }
                             db.updatePlayer(p);
                             playerView.refresh();
@@ -330,6 +347,9 @@ public class UserInterface extends Application {
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okbtn) {
                 String clubName = name.getText();
+                if(clubName.length()>30){
+                    clubName = clubName.substring(0,29);
+                }
                 int clubID = db.countClubs();
                 while(db.findClub(clubID)!=null){
                     clubID++;
@@ -394,26 +414,44 @@ public class UserInterface extends Application {
         dialog.getDialogPane().setContent(grid);
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okbtn) {
-                Player p = new Player();
-                p.setName(name.getText());
 
+                Player p = new Player();
+                String pName = name.getText();
+                if(pName.length()>30){
+                    pName = pName.substring(0,29);
+                }
+                p.setName(pName);
                 try {
-                p.setAge(Integer.parseInt(age.getText()));
+                    String pAge = age.getText();
+                    if(pAge.length()>11){
+                        pAge = pAge.substring(0,10);
+                    }
+                    p.setAge(Integer.parseInt(pAge));
                 } catch (NumberFormatException e) {
                     p.setAge(0);
                 }
-                p.setPosition(position.getText());
-                p.setNationality(nationality.getText());
+                String pPos = position.getText();
+                if (pPos.length()>10){
+                    pPos = pPos.substring(0,9);
+                }
+                p.setPosition(pPos);
+
+                String pNat = nationality.getText();
+                if(pNat.length()>30){
+                    pNat = pNat.substring(0,29);
+                }
+                p.setNationality(pNat);
                 try{
                 p.setMarket_value(Double.parseDouble(mv.getText()));} catch (NumberFormatException e){
                     p.setMarket_value(0.0);
                 }
-
-                String clubName = comboBox.getValue().toString();
                 Club c = null;
-                for (Club i : clubs){
-                    if(i.getName().equals(clubName)){
-                        c = i;
+                if(comboBox.getValue()!=null){
+                    String clubName = comboBox.getValue().toString();
+                    for (Club i : clubs) {
+                        if (i.getName().equals(clubName)) {
+                            c = i;
+                        }
                     }
                 }
                 if(c == null){

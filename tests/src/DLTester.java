@@ -28,37 +28,4 @@ class DLTester {
         assertTrue(actualResult);
     }
 
-//    @ParameterizedTest (name ="{index}: String Field {0} with value {1}")
-//    @MethodSource("getStringValues")
-//    void testSetValues(String field, String value){
-//
-//    }
-//
-//    @ParameterizedTest (name ="{index}: Int Field {0} with value {1}")
-//    @MethodSource("getIntValues")
-//    void testSetValues(String field, int value){
-//
-//    }
-//
-//    static Stream<Arguments> getStringValues() {
-//        return Stream.of(
-//                Arguments.of("name", "Unknown"),
-//                Arguments.of("name", "Test Words"),
-//                Arguments.of("club", "Test String"),
-//                Arguments.of("position", "Test String"),
-//                Arguments.of("nationality", "Test String"),
-//                Arguments.of("fpl_sel", "Test String")
-//        );
-//    }
-//
-//    static Stream<Arguments> getIntValues() {
-//        return Stream.of(
-//                Arguments.of("name", "Unknown"),
-//                Arguments.of("name", "Test Words"),
-//                Arguments.of("club", "Test String"),
-//                Arguments.of("position", "Test String"),
-//                Arguments.of("nationality", "Test String"),
-//                Arguments.of("fpl_sel", "Test String")
-//        );
-//    }
 }

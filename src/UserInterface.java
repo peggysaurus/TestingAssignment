@@ -26,7 +26,7 @@ import java.util.Optional;
 public class UserInterface extends Application {
     protected Scene scene;
     private Stage stage;
-    private TableView playerView;
+    private TableView <Player> playerView;
 //    private ScrollPane sp;
     private DataLoader dl;
     private DataBaseConnector db;
@@ -85,8 +85,8 @@ public class UserInterface extends Application {
 
     private HBox getHBox() {
         HBox hbox = new HBox();
-        hbox.setAlignment(Pos.CENTER_LEFT);
-        hbox.setPadding(new Insets(10,10,0,0));
+        hbox.setAlignment(Pos.CENTER);
+        hbox.setPadding(new Insets(10,20,0,0));
         hbox.setSpacing(10);
         Button loadBtn = new Button();
         loadBtn.setText("Load XML file");
@@ -110,18 +110,168 @@ public class UserInterface extends Application {
         });
         Text searchLabel = new Text("Search: ");
 //        Text txt = new Text("Put buttons here");
-        //TODO make a delete selected button
+
+        Button deleteBtn = new Button();
+        deleteBtn.setText("Delete Selected");
+        deleteBtn.setOnAction(deleteSelected());
+        Button editBtn = new Button();
+        editBtn.setText("Edit Selected");
+        editBtn.setOnAction(editSelected());
+
         Button clearBtn = new Button();
         clearBtn.setText("Clear Database");
         clearBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                db.clearTables();
-                clearTable();
+                Dialog dialog = new Dialog();
+                dialog.getDialogPane().setPadding(new Insets(10));
+                dialog.getDialogPane().setContent(new Text("Are you sure you want to clear all?"));
+                ButtonType okbtn = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+                dialog.getDialogPane().getButtonTypes().addAll(okbtn, ButtonType.CANCEL);
+                dialog.setResultConverter(dialogButton -> {
+                    if (dialogButton == okbtn) {
+
+                        db.clearTables();
+                        clearTable();
+                    }
+                    return null;
+                });
+                dialog.showAndWait();
             }
         });
-        hbox.getChildren().addAll(loadBtn,addPBtn,addCBtn,searchLabel,search, clearBtn);
+        hbox.getChildren().addAll(loadBtn,addPBtn,addCBtn,searchLabel,search, editBtn, deleteBtn, clearBtn);
         return hbox;
+    }
+
+    private EventHandler<ActionEvent> deleteSelected() {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Dialog<String> dialog = new Dialog<>();
+                ButtonType okbtn = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+                dialog.getDialogPane().getButtonTypes().addAll(okbtn, ButtonType.CANCEL);
+                dialog.getDialogPane().setPadding(new Insets(10));
+                Player p = playerView.getSelectionModel().getSelectedItem();
+                if(p != null){
+                    dialog.getDialogPane().setContent(new Text("Are you sure you want to delete?"));
+                    dialog.setResultConverter(dialogButton -> {
+                        if (dialogButton == okbtn) {
+                            db.removePlayer(p);
+                            System.out.println("Removing player " + p.getName());
+                            playerView.getItems().remove(p);
+                        }
+                        return null;
+                    });
+                }
+                else{
+                    dialog.getDialogPane().setContent(new Text("Nothing selected!"));
+                    dialog.setResultConverter(dialogButton -> {
+                        if (dialogButton == okbtn) {
+
+                        }
+                        return null;
+                    });
+                }
+                dialog.showAndWait();
+            }
+        };
+    }
+
+    private EventHandler<ActionEvent> editSelected() {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Dialog<String> dialog = new Dialog<>();
+                ButtonType okbtn = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+                dialog.getDialogPane().getButtonTypes().addAll(okbtn, ButtonType.CANCEL);
+                dialog.getDialogPane().setPadding(new Insets(10,30,10,30));
+
+                Player p = playerView.getSelectionModel().getSelectedItem();
+                if(p != null){
+                    GridPane grid = new GridPane();
+
+                    Text header = new Text("Edit player");
+                    TextField name = new TextField();
+                    Text nameLabel = new Text("Name: ");
+                    name.setText(p.getName());
+
+                    ArrayList <Club> clubs = db.getClubsArray();
+                    ObservableList<String> options = FXCollections.observableArrayList();
+                    for (Club c : clubs) {
+                        options.add(c.getName());
+                    }
+                    ComboBox comboBox = new ComboBox(options);
+                    comboBox.setValue(p.getClub().getName());
+                    Text clubLabel = new Text("Club: ");
+
+                    TextField age = new TextField();
+                    Text ageLabel = new Text("Age: ");
+                    age.setText("" + p.getAge());
+
+                    TextField position = new TextField();
+                    Text posLabel = new Text("Position: ");
+                    position.setText(p.getPosition());
+
+                    TextField nationality = new TextField();
+                    Text natLabel = new Text("Nationality: ");
+                    nationality.setText(p.getNationality());
+
+                    TextField mv = new TextField();
+                    Text mvLabel = new Text("Market Value: ");
+                    mv.setText("" + p.getMarket_value());
+
+                    grid.setAlignment(Pos.CENTER);
+                    grid.add(header,1,0);
+                    grid.setColumnSpan(header,2);
+                    grid.add(nameLabel,0,1);
+                    grid.add(name,2,1);
+                    grid.add(clubLabel,0,2);
+                    grid.add(comboBox,2,2);
+                    grid.add(ageLabel,0,3);
+                    grid.add(age,2,3);
+                    grid.add(posLabel,0,4);
+                    grid.add(position,2,4);
+                    grid.add(natLabel,0,5);
+                    grid.add(nationality,2,5);
+                    grid.add(mvLabel,0,6);
+                    grid.add(mv,2,6);
+
+                    dialog.getDialogPane().setContent(grid);
+
+                    dialog.getDialogPane().setContent(grid);
+                    dialog.setResultConverter(dialogButton -> {
+                        if (dialogButton == okbtn) {
+                            p.setName(name.getText());
+                            p.setPosition(position.getText());
+                            p.setNationality(nationality.getText());
+                            for (Club c : clubs){
+                                if(comboBox.getValue().equals(c.getName())){
+                                    p.setClub(c);
+                                }
+                            }
+                            try{
+                                p.setAge(Integer.parseInt(age.getText()));
+                                p.setMarket_value(Double.parseDouble(mv.getText()));
+                            } catch (NumberFormatException e){
+                                System.out.println("invalid entry in age of market value");
+                            }
+                            db.updatePlayer(p);
+                            playerView.refresh();
+                        }
+                        return null;
+                    });
+                }
+                else{
+                    dialog.getDialogPane().setContent(new Text("Nothing selected!"));
+                    dialog.setResultConverter(dialogButton -> {
+                        if (dialogButton == okbtn) {
+                        }
+                        return null;
+                    });
+                }
+                dialog.showAndWait();
+            }
+        };
     }
 
     private EventHandler<ActionEvent> addClub() {

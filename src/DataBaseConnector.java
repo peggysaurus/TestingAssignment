@@ -226,6 +226,7 @@ public class DataBaseConnector {
     }
 
     public String removePlayer(Player p){
+        System.out.println("Started removePlayer");
         try{
             String sql = "DELETE FROM players WHERE id = ?";
 
@@ -477,5 +478,29 @@ public class DataBaseConnector {
         }
 
         return clubs;
+    }
+
+    public boolean updatePlayer (Player p){
+        try {
+            String sql = "update players " +
+                    "set name = ?, club = ?, position = ?, nationality = ?, age = ?, market_value = ? " +
+                    "where id = ?";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, p.getName());
+            ps.setInt(2, p.getClub().getId());
+            ps.setString(3, p.getPosition());
+            ps.setString(4, p.getNationality());
+            ps.setInt(5, p.getAge());
+            ps.setDouble(6, p.getMarket_value());
+            ps.setInt(7, p.getPlayer_id());
+
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

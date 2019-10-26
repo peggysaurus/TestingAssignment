@@ -146,10 +146,6 @@ class DBTester {
         db.saveClub(test);
         assertEquals(expectedResult,db.removeClub(test));
     }
-    //test UI trying to load correct file
 
-    //test UI trying to load other files
-
-    //test SQL injection
 
 }

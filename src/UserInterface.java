@@ -157,7 +157,7 @@ public class UserInterface extends Application {
                     dialog.setResultConverter(dialogButton -> {
                         if (dialogButton == okbtn) {
                             db.removePlayer(p);
-                            System.out.println("Removing player " + p.getName());
+//                            System.out.println("Removing player " + p.getName());
                             playerView.getItems().remove(p);
                         }
                         return null;
